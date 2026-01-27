@@ -6,9 +6,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(120deg,#eef3f9,#f8fbff)}
-header{max-width:1200px;margin:12px auto 0;background:linear-gradient(90deg,#0b3c6d,#1e6fa8);border-radius:14px}
-.header-wrap{display:flex;align-items:center;gap:20px;padding:12px 16px}
+/* ================= GLOBAL ================= */
+body{
+  margin:0;
+  font-family:"Segoe UI", Arial, sans-serif;
+  background:linear-gradient(120deg,#eef3f9,#f8fbff);
+}
+
+/* ================= HEADER ================= */
+header{
+  max-width:1200px;
+  margin:12px auto 0;
+  background:linear-gradient(90deg,#0b3c6d,#1e6fa8);
+  border-radius:14px;
+}
+.header-wrap{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:12px 16px;
+}
 .header-wrap img{height:110px}
 .header-text{flex:1;text-align:center;color:#fff}
 .header-text h1{margin:0;font-size:28px;font-weight:800}
@@ -16,10 +33,19 @@ header{max-width:1200px;margin:12px auto 0;background:linear-gradient(90deg,#0b3
 .header-text h3{margin:2px 0;font-size:16px;font-weight:600}
 .header-text h4{margin:0;font-size:14px;font-weight:500}
 
+/* ================= CONTAINER ================= */
 .container{max-width:1200px;margin:10px auto;padding:10px 16px 24px}
-.card{background:#fff;padding:22px;border-radius:14px;box-shadow:0 10px 25px rgba(0,0,0,.12)}
+
+.card{
+  background:#f4f8ff; /* LIGHT SHADE BACKGROUND */
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,.12);
+}
+
 h3{margin-top:0;color:#0b3c6d;font-size:22px}
 
+/* ================= ROW SYSTEM ================= */
 .row-date{display:grid;grid-template-columns:120px 1fr 2fr;gap:16px}
 .row-journey{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .row-station{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -27,13 +53,52 @@ h3{margin-top:0;color:#0b3c6d;font-size:22px}
 .row-crew{display:grid;grid-template-columns:1fr 2fr 1fr 1fr;gap:16px}
 .row-upload{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 
-label{font-weight:700;color:#333;font-size:14px}
-input,select{width:100%;padding:9px 10px;border-radius:8px;border:1px solid #cbd5e1;font-size:14px}
-input:focus,select:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 2px #bfdbfe}
+label{font-weight:800;color:#1f2937;font-size:14px}
+
+input,select{
+  width:100%;
+  padding:10px 12px;
+  border-radius:8px;
+  border:2px solid #cbd5e1;
+  font-size:14px;
+  font-weight:700; /* INPUT BOLD */
+  background:#ffffff;
+  transition:all .2s ease;
+}
+
+/* INPUT FILLED EFFECT */
+input:not(:placeholder-shown), select:not([value=""]){
+  background:#e8f1ff;
+}
+
+input:focus,select:focus{
+  outline:none;
+  border-color:#2563eb;
+  background:#e0ecff;
+}
+
+/* UPLOAD STATES */
+.upload-received{
+  border-color:#16a34a !important;
+  background:#dcfce7 !important;
+}
+
 .spacer{height:14px}
-button{margin-top:26px;padding:14px 32px;background:linear-gradient(90deg,#2563eb,#1e40af);color:#fff;border:none;border-radius:30px;font-size:16px;font-weight:700;cursor:pointer}
+
+button{
+  margin-top:26px;
+  padding:14px 32px;
+  background:linear-gradient(90deg,#2563eb,#1e40af);
+  color:#fff;
+  border:none;
+  border-radius:30px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
 button:hover{transform:scale(1.02)}
-small{color:#555}
+
+small{color:#374151;font-weight:600}
 </style>
 </head>
 
@@ -126,17 +191,16 @@ small{color:#555}
 
     <div class="spacer"></div>
 
-    <!-- ✅ UPLOAD WINDOWS (RESTORED) -->
     <div class="row-upload">
       <div>
         <label>RTIS Data (CSV)</label>
         <input type="file" id="rtis_file" accept=".csv">
-        <small>Mandatory for analysis</small>
+        <small id="rtis_status">Not received</small>
       </div>
       <div>
         <label>Caution Order</label>
         <input type="file" id="caution_file" accept=".pdf,.jpg,.jpeg,.png,.csv">
-        <small>Mandatory for audit justification</small>
+        <small id="caution_status">Not received</small>
       </div>
     </div>
 
@@ -145,6 +209,67 @@ small{color:#555}
   </div>
 </div>
 
-<script src="app.js"></script>
+<script>
+/* ================= MASTERS ================= */
+let cliMap={}, stationMap={}, crewMap={}, mastersLoaded=false;
+let rtisFile=null, cautionFile=null;
+
+async function loadCSV(path){
+  const res = await fetch(path);
+  const text = await res.text();
+  return text.trim().split(/\r?\n/).map(r=>r.split(",").map(c=>c.trim()));
+}
+
+async function loadMasters(){
+  (await loadCSV("masters/cli_master.csv")).slice(1).forEach(r=>{if(r[0])cliMap[r[0].toUpperCase()]=r[1]});
+  (await loadCSV("masters/station_master.csv")).slice(1).forEach(r=>{if(r[0])stationMap[r[0].toUpperCase()]=r[1]});
+  (await loadCSV("masters/crew_master.csv")).slice(1).forEach(r=>{if(r[0])crewMap[r[0].toUpperCase()]={name:r[1],desg:r[2],gcli:r[3]}});
+  mastersLoaded=true;
+}
+loadMasters();
+
+/* ================= DATE RULES ================= */
+document.addEventListener("DOMContentLoaded",()=>{
+  const today=new Date();
+  const iso=today.toISOString().slice(0,10);
+  todayInput=document.getElementById("today");
+  todayInput.value=iso;
+
+  const nowISO=new Date().toISOString().slice(0,16);
+  journey_from.max=nowISO;
+  journey_to.max=nowISO;
+});
+
+function waitForMasters(cb){mastersLoaded?cb():setTimeout(()=>waitForMasters(cb),100)}
+
+cli_id.oninput=()=>waitForMasters(()=>cli_name.value=cliMap[cli_id.value.trim().toUpperCase()]||"");
+from_code.oninput=()=>waitForMasters(()=>from_name.value=stationMap[from_code.value.trim().toUpperCase()]||"");
+to_code.oninput=()=>waitForMasters(()=>to_name.value=stationMap[to_code.value.trim().toUpperCase()]||"");
+
+lp_id.oninput=()=>waitForMasters(()=>{const d=crewMap[lp_id.value.trim().toUpperCase()];lp_name.value=d?d.name:"";lp_desg.value=d?d.desg:"";lp_gcli.value=d?d.gcli:""});
+alp_id.oninput=()=>waitForMasters(()=>{const d=crewMap[alp_id.value.trim().toUpperCase()];alp_name.value=d?d.name:"";alp_desg.value=d?d.desg:"";alp_gcli.value=d?d.gcli:""});
+
+/* ================= UPLOAD FEEDBACK ================= */
+rtis_file.onchange=e=>{
+  rtisFile=e.target.files[0]||null;
+  if(rtisFile){
+    rtis_file.classList.add("upload-received");
+    rtis_status.textContent="Received";
+  }
+};
+
+caution_file.onchange=e=>{
+  cautionFile=e.target.files[0]||null;
+  if(cautionFile){
+    caution_file.classList.add("upload-received");
+    caution_status.textContent="Received";
+  }
+};
+
+function generateReport(){
+  if(!rtisFile||!cautionFile){alert("RTIS Data aur Caution Order dono upload karna mandatory hai");return}
+  alert("All inputs validated. Ready for analysis.");
+}
+</script>
 </body>
 </html>
