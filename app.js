@@ -1,60 +1,131 @@
-let cliMap = {}, stationMap = {}, crewMap = {};
+/* ===============================
+   GLOBAL MASTER MAPS
+================================ */
+let cliMap = {};
+let stationMap = {};
+let crewMap = {};
+let mastersLoaded = false;
 
-// ---------- CSV LOADER ----------
-async function loadCSV(path, callback){
-  const res = await fetch(path);
-  const text = await res.text();
-  const rows = text.split("\n").map(r => r.split(","));
-  callback(rows);
+/* ===============================
+   CSV LOADER (SAFE)
+================================ */
+async function loadCSV(path) {
+    const res = await fetch(path);
+    const text = await res.text();
+    return text
+        .trim()
+        .split(/\r?\n/)
+        .map(r => r.split(",").map(c => c.trim()));
 }
 
-// ---------- LOAD MASTERS ----------
-loadCSV("masters/cli_master.csv", rows=>{
-  rows.slice(1).forEach(r=>{
-    cliMap[r[0]?.trim()] = r[1]?.trim();
-  });
-});
+/* ===============================
+   LOAD ALL MASTERS
+================================ */
+async function loadMasters() {
 
-loadCSV("masters/station_master.csv", rows=>{
-  rows.slice(1).forEach(r=>{
-    stationMap[r[0]?.trim()] = r[1]?.trim();
-  });
-});
+    // CLI MASTER
+    const cliRows = await loadCSV("masters/cli_master.csv");
+    cliRows.slice(1).forEach(r => {
+        if (r[0]) cliMap[r[0].toUpperCase()] = r[1];
+    });
 
-loadCSV("masters/crew_master.csv", rows=>{
-  rows.slice(1).forEach(r=>{
-    crewMap[r[0]?.trim()] = {
-      name:r[1], desg:r[2], gcli:r[3]
-    };
-  });
-});
+    // STATION MASTER
+    const stnRows = await loadCSV("masters/station_master.csv");
+    stnRows.slice(1).forEach(r => {
+        if (r[0]) stationMap[r[0].toUpperCase()] = r[1];
+    });
 
-// ---------- DEFAULT DATE ----------
-document.getElementById("today").valueAsDate = new Date();
+    // CREW MASTER
+    const crewRows = await loadCSV("masters/crew_master.csv");
+    crewRows.slice(1).forEach(r => {
+        if (r[0]) {
+            crewMap[r[0].toUpperCase()] = {
+                name: r[1],
+                desg: r[2],
+                gcli: r[3]
+            };
+        }
+    });
 
-// ---------- MPS DROPDOWN ----------
-let mps = document.getElementById("train_mps");
-for(let i=40;i<=140;i+=5){
-  mps.innerHTML += `<option>${i}</option>`;
+    mastersLoaded = true;
+    console.log("✔ All masters loaded successfully");
 }
 
-// ---------- AUTO FILL ----------
-cli_id.oninput = ()=> cli_name.value = cliMap[cli_id.value.toUpperCase()] || "";
+loadMasters();
 
-from_code.oninput = ()=> from_name.value = stationMap[from_code.value.toUpperCase()] || "";
-to_code.oninput   = ()=> to_name.value   = stationMap[to_code.value.toUpperCase()] || "";
+/* ===============================
+   DATE DEFAULT = TODAY
+================================ */
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("today").value =
+        new Date().toISOString().split("T")[0];
+});
 
-lp_id.oninput = ()=>{
-  let d = crewMap[lp_id.value.toUpperCase()];
-  if(d){ lp_name.value=d.name; lp_desg.value=d.desg; lp_gcli.value=d.gcli; }
-};
+/* ===============================
+   AUTO FILL LOGIC
+================================ */
+function waitForMasters(cb) {
+    if (mastersLoaded) cb();
+    else setTimeout(() => waitForMasters(cb), 100);
+}
 
-alp_id.oninput = ()=>{
-  let d = crewMap[alp_id.value.toUpperCase()];
-  if(d){ alp_name.value=d.name; alp_desg.value=d.desg; alp_gcli.value=d.gcli; }
-};
+// CLI
+cli_id.addEventListener("input", () => {
+    waitForMasters(() => {
+        cli_name.value =
+            cliMap[cli_id.value.trim().toUpperCase()] || "";
+    });
+});
 
-// ---------- REPORT ----------
-function generateReport(){
-  alert("All inputs captured successfully.\n(Next phase: RTIS + Violation logic)");
+// STATIONS
+from_code.addEventListener("input", () => {
+    waitForMasters(() => {
+        from_name.value =
+            stationMap[from_code.value.trim().toUpperCase()] || "";
+    });
+});
+
+to_code.addEventListener("input", () => {
+    waitForMasters(() => {
+        to_name.value =
+            stationMap[to_code.value.trim().toUpperCase()] || "";
+    });
+});
+
+// LP
+lp_id.addEventListener("input", () => {
+    waitForMasters(() => {
+        const d = crewMap[lp_id.value.trim().toUpperCase()];
+        if (d) {
+            lp_name.value = d.name;
+            lp_desg.value = d.desg;
+            lp_gcli.value = d.gcli;
+        } else {
+            lp_name.value = lp_desg.value = lp_gcli.value = "";
+        }
+    });
+});
+
+// ALP
+alp_id.addEventListener("input", () => {
+    waitForMasters(() => {
+        const d = crewMap[alp_id.value.trim().toUpperCase()];
+        if (d) {
+            alp_name.value = d.name;
+            alp_desg.value = d.desg;
+            alp_gcli.value = d.gcli;
+        } else {
+            alp_name.value = alp_desg.value = alp_gcli.value = "";
+        }
+    });
+});
+
+/* ===============================
+   REPORT BUTTON (PLACEHOLDER)
+================================ */
+function generateReport() {
+    alert(
+        "✔ All inputs captured successfully\n" +
+        "Next Phase: RTIS + Signal + OHE logic"
+    );
 }
