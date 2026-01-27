@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TELOC Cell | SECR Raipur Division</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{font-family:Arial;margin:0;background:#f4f6f9}
+header{background:#0b3c6d;color:#fff;padding:15px}
+header .wrap{display:flex;align-items:center;gap:20px;justify-content:center}
+header img{height:70px}
+nav{background:#fff;padding:10px;text-align:center;box-shadow:0 2px 5px #ccc}
+nav a{margin:0 12px;text-decoration:none;font-weight:bold;color:#0b3c6d}
+.container{max-width:1100px;margin:20px auto;padding:20px}
+.card{background:#fff;padding:20px;margin-bottom:20px;border-radius:8px;box-shadow:0 4px 10px #ccc}
+h3{color:#0b3c6d}
+label{display:block;margin-top:10px;font-weight:bold}
+input,select{padding:6px;width:100%;margin-top:5px}
+.inline{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{margin-top:15px;padding:10px;background:#0b3c6d;color:#fff;border:none;border-radius:5px;cursor:pointer}
+button:hover{background:#1e6fa8}
+small{color:#555}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="wrap">
+<img src="masters/IR_LOGO.png">
+<div>
+<h1>Indian Railways</h1>
+<h2>South East Central Railway – Raipur Division</h2>
+<b>Electrical (OP) Department | TELOC Cell</b>
+</div>
+</div>
+</header>
+
+<nav>
+<a>Home</a>
+<a>Upload</a>
+<a>Reports</a>
+<a>Masters</a>
+</nav>
+
+<div class="container">
+
+<div class="card">
+<h3>CLI Input Form</h3>
+
+<label>Date</label>
+<input type="date" id="today">
+
+<label>CLI</label>
+<div class="inline">
+<input id="cli_id" placeholder="CLI ID (R0045)">
+<input id="cli_name" placeholder="CLI Name" disabled>
+</div>
+
+<label>Date of Journey</label>
+<div class="inline">
+<input type="datetime-local" id="journey_from">
+<input type="datetime-local" id="journey_to">
+</div>
+
+<label>Journey Station</label>
+<div class="inline">
+<input id="from_code" placeholder="From Station Code">
+<input id="from_name" placeholder="From Station Name" disabled>
+</div>
+
+<div class="inline">
+<input id="to_code" placeholder="To Station Code">
+<input id="to_name" placeholder="To Station Name" disabled>
+</div>
+
+<label>Train Name / Number</label>
+<input id="train_no">
+
+<label>Train Type</label>
+<select id="train_type">
+<option>Goods</option>
+<option>Coaching</option>
+<option>Passenger</option>
+<option>MEMU</option>
+<option>VB</option>
+</select>
+
+<label>Train MPS</label>
+<select id="train_mps"></select>
+
+<label>LP Details</label>
+<div class="inline">
+<input id="lp_id" placeholder="LP ID">
+<input id="lp_name" placeholder="LP Name" disabled>
+</div>
+<div class="inline">
+<input id="lp_desg" placeholder="Designation" disabled>
+<input id="lp_gcli" placeholder="G_CLI" disabled>
+</div>
+
+<label>ALP Details</label>
+<div class="inline">
+<input id="alp_id" placeholder="ALP ID">
+<input id="alp_name" placeholder="ALP Name" disabled>
+</div>
+<div class="inline">
+<input id="alp_desg" placeholder="Designation" disabled>
+<input id="alp_gcli" placeholder="G_CLI" disabled>
+</div>
+
+<label>RTIS Data</label>
+<input type="file">
+
+<label>Caution Order</label>
+<input type="file">
+
+<button onclick="generateReport()">Generate Report</button>
+
+</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
