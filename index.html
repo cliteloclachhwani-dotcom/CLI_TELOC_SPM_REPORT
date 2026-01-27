@@ -17,6 +17,9 @@ body{
 header{
   background:linear-gradient(90deg,#0b3c6d,#1e6fa8);
 }
+
+/* FORCE header content to align with form width */
+header::before, header::after{content:none}
 .header-wrap{
   max-width:1200px;   /* SAME AS FORM */
   margin:0 auto;
