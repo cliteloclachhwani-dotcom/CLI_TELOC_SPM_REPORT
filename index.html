@@ -8,113 +8,152 @@
 <style>
 body{font-family:Arial;margin:0;background:#f4f6f9}
 header{background:#0b3c6d;color:#fff;padding:15px}
-header .wrap{display:flex;align-items:center;gap:20px;justify-content:center}
-header img{height:70px}
-nav{background:#fff;padding:10px;text-align:center;box-shadow:0 2px 5px #ccc}
-nav a{margin:0 12px;text-decoration:none;font-weight:bold;color:#0b3c6d}
-.container{max-width:1100px;margin:20px auto;padding:20px}
+.header-wrap{display:flex;align-items:center;gap:25px}
+.header-wrap img{height:140px}
+.header-text{text-align:center;flex:1}
+.header-text h1{margin:0;font-size:34px}
+.header-text h2{margin:5px 0;font-size:28px}
+.header-text h3{margin:5px 0;font-size:20px;font-weight:normal}
+.header-text h4{margin:3px 0;font-size:16px;font-weight:normal}
+.container{max-width:1200px;margin:20px auto;padding:20px}
 .card{background:#fff;padding:20px;margin-bottom:20px;border-radius:8px;box-shadow:0 4px 10px #ccc}
-h3{color:#0b3c6d}
-label{display:block;margin-top:10px;font-weight:bold}
-input,select{padding:6px;width:100%;margin-top:5px}
-.inline{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{margin-top:15px;padding:10px;background:#0b3c6d;color:#fff;border:none;border-radius:5px;cursor:pointer}
+h3{color:#0b3c6d;margin-top:0}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.row-4{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}
+.row-5{display:grid;grid-template-columns:repeat(5,1fr);gap:15px}
+label{font-weight:bold}
+input{padding:6px;width:100%}
+button{margin-top:20px;padding:12px 20px;background:#0b3c6d;color:#fff;border:none;border-radius:6px;font-size:16px;cursor:pointer}
 button:hover{background:#1e6fa8}
-small{color:#555}
 </style>
 </head>
 
 <body>
 
 <header>
-<div class="wrap">
-<img src="masters/IR_LOGO.png">
-<div>
-<h1>Indian Railways</h1>
-<h2>South East Central Railway – Raipur Division</h2>
-<b>Electrical (OP) Department | TELOC Cell</b>
-</div>
-</div>
+  <div class="header-wrap">
+    <img src="masters/IR_LOGO.png">
+    <div class="header-text">
+      <h1>South East Central Railway</h1>
+      <h2>Raipur Division</h2>
+      <h3>Electrical (OP) Department</h3>
+      <h4>TELOC Cell</h4>
+    </div>
+  </div>
 </header>
-
-<nav>
-<a>Home</a>
-<a>Upload</a>
-<a>Reports</a>
-<a>Masters</a>
-</nav>
 
 <div class="container">
 
 <div class="card">
 <h3>CLI Input Form</h3>
 
-<label>Date</label>
-<input type="date" id="today">
-
-<label>CLI</label>
-<div class="inline">
-<input id="cli_id" placeholder="CLI ID (R0045)">
-<input id="cli_name" placeholder="CLI Name" disabled>
+<div class="row">
+  <div>
+    <label>Date</label>
+    <input type="date" id="today">
+  </div>
+  <div>
+    <label>CLI ID</label>
+    <input id="cli_id" placeholder="R0045">
+  </div>
+  <div>
+    <label>CLI Name</label>
+    <input id="cli_name" disabled>
+  </div>
 </div>
 
-<label>Date of Journey</label>
-<div class="inline">
-<input type="datetime-local" id="journey_from">
-<input type="datetime-local" id="journey_to">
+<br>
+
+<div class="row-4">
+  <div>
+    <label>Journey From (Date & Time)</label>
+    <input type="datetime-local" id="journey_from">
+  </div>
+  <div>
+    <label>Journey To (Date & Time)</label>
+    <input type="datetime-local" id="journey_to">
+  </div>
+  <div>
+    <label>From Station Code</label>
+    <input id="from_code">
+  </div>
+  <div>
+    <label>From Station Name</label>
+    <input id="from_name" disabled>
+  </div>
 </div>
 
-<label>Journey Station</label>
-<div class="inline">
-<input id="from_code" placeholder="From Station Code">
-<input id="from_name" placeholder="From Station Name" disabled>
+<br>
+
+<div class="row-4">
+  <div>
+    <label>To Station Code</label>
+    <input id="to_code">
+  </div>
+  <div>
+    <label>To Station Name</label>
+    <input id="to_name" disabled>
+  </div>
 </div>
 
-<div class="inline">
-<input id="to_code" placeholder="To Station Code">
-<input id="to_name" placeholder="To Station Name" disabled>
+<br>
+
+<div class="row-4">
+  <div>
+    <label>Train Name / Number</label>
+    <input id="train_no">
+  </div>
+  <div>
+    <label>Train Type</label>
+    <input id="train_type" placeholder="Goods / Coaching / Passenger">
+  </div>
+  <div>
+    <label>Train MPS (kmph)</label>
+    <input id="train_mps" placeholder="e.g. 60">
+  </div>
 </div>
 
-<label>Train Name / Number</label>
-<input id="train_no">
+<br>
 
-<label>Train Type</label>
-<select id="train_type">
-<option>Goods</option>
-<option>Coaching</option>
-<option>Passenger</option>
-<option>MEMU</option>
-<option>VB</option>
-</select>
-
-<label>Train MPS</label>
-<select id="train_mps"></select>
-
-<label>LP Details</label>
-<div class="inline">
-<input id="lp_id" placeholder="LP ID">
-<input id="lp_name" placeholder="LP Name" disabled>
-</div>
-<div class="inline">
-<input id="lp_desg" placeholder="Designation" disabled>
-<input id="lp_gcli" placeholder="G_CLI" disabled>
+<div class="row-5">
+  <div>
+    <label>LP ID</label>
+    <input id="lp_id">
+  </div>
+  <div>
+    <label>LP Name</label>
+    <input id="lp_name" disabled>
+  </div>
+  <div>
+    <label>LP Designation</label>
+    <input id="lp_desg" disabled>
+  </div>
+  <div>
+    <label>LP G_CLI</label>
+    <input id="lp_gcli" disabled>
+  </div>
 </div>
 
-<label>ALP Details</label>
-<div class="inline">
-<input id="alp_id" placeholder="ALP ID">
-<input id="alp_name" placeholder="ALP Name" disabled>
-</div>
-<div class="inline">
-<input id="alp_desg" placeholder="Designation" disabled>
-<input id="alp_gcli" placeholder="G_CLI" disabled>
-</div>
+<br>
 
-<label>RTIS Data</label>
-<input type="file">
-
-<label>Caution Order</label>
-<input type="file">
+<div class="row-5">
+  <div>
+    <label>ALP ID</label>
+    <input id="alp_id">
+  </div>
+  <div>
+    <label>ALP Name</label>
+    <input id="alp_name" disabled>
+  </div>
+  <div>
+    <label>ALP Designation</label>
+    <input id="alp_desg" disabled>
+  </div>
+  <div>
+    <label>ALP G_CLI</label>
+    <input id="alp_gcli" disabled>
+  </div>
+</div>
 
 <button onclick="generateReport()">Generate Report</button>
 
