@@ -6,14 +6,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-/* ===== GLOBAL ===== */
 body{
   margin:0;
   font-family:"Segoe UI",Arial,sans-serif;
   background:linear-gradient(120deg,#eef3f9,#f8fbff);
 }
 
-/* ===== HEADER ===== */
+/* HEADER */
 header{
   max-width:1200px;
   margin:12px auto 0;
@@ -36,8 +35,6 @@ header{
 .header-text h2{margin:2px 0;font-size:22px;font-weight:700}
 .header-text h3{margin:2px 0;font-size:16px;font-weight:600;color:#fff}
 .header-text h4{margin:0;font-size:14px;font-weight:500}
-
-/* ===== WATERMARK ===== */
 .watermark{
   background:#2563eb;
   color:#fff;
@@ -48,12 +45,8 @@ header{
   white-space:nowrap;
 }
 
-/* ===== CONTAINER ===== */
-.container{
-  max-width:1200px;
-  margin:10px auto;
-  padding:10px 16px 24px;
-}
+/* CONTAINER */
+.container{max-width:1200px;margin:10px auto;padding:10px 16px 24px}
 .card{
   background:#f4f8ff;
   padding:22px;
@@ -62,7 +55,7 @@ header{
 }
 h3{margin-top:0;color:#0b3c6d;font-size:22px}
 
-/* ===== ROWS ===== */
+/* ROWS */
 .row-date{display:grid;grid-template-columns:120px 1fr 2fr;gap:16px}
 .row-journey{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .row-station{display:grid;grid-template-columns:1fr 1fr;gap:20px}
@@ -80,26 +73,17 @@ input,select{
   font-size:14px;
   font-weight:700;
   background:#fff;
-  transition:.2s;
 }
-
 input[disabled]{
   font-weight:800;
   background:#eef4ff;
 }
-
-input:not(:placeholder-shown),
-select:not([value=""]){
-  background:#e8f1ff;
-}
-
 input:focus,select:focus{
   outline:none;
   border-color:#2563eb;
   background:#e0ecff;
 }
 
-/* UPLOAD RECEIVED */
 .upload-received{
   border-color:#16a34a !important;
   background:#dcfce7 !important;
@@ -118,8 +102,6 @@ button{
   font-weight:800;
   cursor:pointer;
 }
-button:hover{transform:scale(1.02)}
-
 small{font-weight:600}
 </style>
 </head>
@@ -128,7 +110,7 @@ small{font-weight:600}
 
 <header>
   <div class="header-wrap">
-    <img src="masters/IR_LOGO.png" alt="IR Logo">
+    <img src="masters/IR_LOGO.png">
     <div class="header-text">
       <h1>South East Central Railway</h1>
       <h2>Raipur Division</h2>
@@ -145,7 +127,7 @@ small{font-weight:600}
 
 <div class="row-date">
   <div><label>Date</label><input type="date" id="today"></div>
-  <div><label>CLI ID</label><input id="cli_id" placeholder="R0045"></div>
+  <div><label>CLI ID</label><input id="cli_id"></div>
   <div><label>CLI Name</label><input id="cli_name" disabled></div>
 </div>
 
@@ -186,12 +168,13 @@ small{font-weight:600}
     <label>Train MPS</label>
     <select id="train_mps">
       <option value="">Select</option>
-      <option>40</option><option>45</option><option>50</option><option>55</option>
-      <option>60</option><option>65</option><option>70</option><option>75</option>
-      <option>80</option><option>85</option><option>90</option><option>95</option>
-      <option>100</option><option>105</option><option>110</option><option>115</option>
-      <option>120</option><option>125</option><option>130</option><option>135</option>
-      <option>140</option>
+      <option>40</option><option>45</option><option>50</option>
+      <option>55</option><option>60</option><option>65</option>
+      <option>70</option><option>75</option><option>80</option>
+      <option>85</option><option>90</option><option>95</option>
+      <option>100</option><option>105</option><option>110</option>
+      <option>115</option><option>120</option><option>125</option>
+      <option>130</option><option>135</option><option>140</option>
     </select>
   </div>
 </div>
@@ -219,7 +202,7 @@ small{font-weight:600}
 <div class="row-upload">
   <div>
     <label>RTIS Data (CSV)</label>
-    <input type="file" id="rtis_file" accept=".csv">
+    <input type="file" id="rtis_file">
     <small id="rtis_status">Choose File</small>
   </div>
   <div>
@@ -234,38 +217,41 @@ small{font-weight:600}
 </div>
 
 <script>
-/* ===== MASTER DATA ===== */
-let cliMap={},stationMap={},crewMap={},mastersLoaded=false;
-let rtisFile=null,cautionFile=null;
+/* ===== MASTER MAPS ===== */
+let cliMap={}, stationMap={}, crewMap={}, mastersLoaded=false;
+let rtisFile=null, cautionFile=null;
 
-async function loadCSV(p){
-  const r=await fetch(p);const t=await r.text();
-  return t.trim().split(/\\r?\\n/).map(l=>l.split(',').map(c=>c.trim()));
+async function loadCSV(path){
+  const res = await fetch(path,{cache:'no-store'});
+  const txt = await res.text();
+  return txt.split(/\\r?\\n/)
+    .map(r=>r.split(',').map(c=>c.trim()))
+    .filter(r=>r[0]);
 }
 
 async function loadMasters(){
   (await loadCSV('masters/cli_master.csv')).slice(1)
-    .forEach(r=>cliMap[r[0]?.toUpperCase()]=r[1]);
+    .forEach(r=>cliMap[r[0].toUpperCase()]=r[1]);
   (await loadCSV('masters/station_master.csv')).slice(1)
-    .forEach(r=>stationMap[r[0]?.toUpperCase()]=r[1]);
+    .forEach(r=>stationMap[r[0].toUpperCase()]=r[1]);
   (await loadCSV('masters/crew_master.csv')).slice(1)
-    .forEach(r=>crewMap[r[0]?.toUpperCase()]={name:r[1],desg:r[2],gcli:r[3]});
+    .forEach(r=>crewMap[r[0].toUpperCase()]={name:r[1],desg:r[2],gcli:r[3]});
   mastersLoaded=true;
 }
 loadMasters();
 
 function wait(cb){mastersLoaded?cb():setTimeout(()=>wait(cb),100)}
 
-cli_id.oninput=()=>wait(()=>cli_name.value=cliMap[cli_id.value.toUpperCase()]||'');
-from_code.oninput=()=>wait(()=>from_name.value=stationMap[from_code.value.toUpperCase()]||'');
-to_code.oninput=()=>wait(()=>to_name.value=stationMap[to_code.value.toUpperCase()]||'');
+cli_id.oninput=()=>wait(()=>cli_name.value=cliMap[cli_id.value.trim().toUpperCase()]||'');
+from_code.oninput=()=>wait(()=>from_name.value=stationMap[from_code.value.trim().toUpperCase()]||'');
+to_code.oninput=()=>wait(()=>to_name.value=stationMap[to_code.value.trim().toUpperCase()]||'');
 
 lp_id.oninput=()=>wait(()=>{
-  const d=crewMap[lp_id.value.toUpperCase()];
+  const d=crewMap[lp_id.value.trim().toUpperCase()];
   lp_name.value=d?d.name:'';lp_desg.value=d?d.desg:'';lp_gcli.value=d?d.gcli:'';
 });
 alp_id.oninput=()=>wait(()=>{
-  const d=crewMap[alp_id.value.toUpperCase()];
+  const d=crewMap[alp_id.value.trim().toUpperCase()];
   alp_name.value=d?d.name:'';alp_desg.value=d?d.desg:'';alp_gcli.value=d?d.gcli:'';
 });
 
@@ -299,7 +285,7 @@ function generateReport(){
     alert('RTIS Data aur Caution Order mandatory hai');
     return;
   }
-  alert('Final approved. Home page locked.');
+  alert('Masters OK. Home page FINAL.');
 }
 </script>
 
